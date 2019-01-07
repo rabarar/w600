@@ -19,7 +19,9 @@ class WMDownload(object):
 
     if platform.system() == 'Windows':
         DEFAULT_PORT = "COM1"
-    else:
+    else if platform.system() == 'Darwin':
+        DEFAULT_PORT = "/dev/tty.usb{find me}"
+    else
         DEFAULT_PORT = "/dev/ttyUSB0"
     DEFAULT_BAUD = 115200
     DEFAULT_TIMEOUT = 0.3
@@ -66,6 +68,9 @@ def help():
     print('win:python download.py [COM] [image]')
     print('    COM default：\"COM1\" image default：\"../Bin/WM_W600_GZ.img\"')
     print('    eg：python download.py COM5 ../Bin/WM_W600_GZ.img')
+    print('Darwin:python3 download.py [COM]] [image]')
+    print('    COM default：\"tty.usb\" image default：\"../Bin/WM_W600_GZ.img\"')
+    print('    eg：python3 download.py ttyUSB0 ../Bin/WM_W600_GZ.img')
     print('Linux:python3 download.py [COM] [image]')
     print('    COM default：\"ttyUSB0\" image default：\"../Bin/WM_W600_GZ.img\"')
     print('    eg：python3 download.py ttyUSB0 ../Bin/WM_W600_GZ.img')
@@ -101,15 +106,17 @@ def main(argv):
     while True:
         c = download.getc(1)
         if c == b'C':
-            download.putc(bytes.fromhex('210a00ef2a3100000080841e00'))
+            if platform.system() != 'Darwin':
+                download.putc(bytes.fromhex('210a00ef2a3100000080841e00'))
             break
         else:
             download.putc(struct.pack('<B', 27))
-    download.close()
-    time.sleep(0.2)
-    download.set_port_baudrate(2000000)
-    download.open()
-    time.sleep(0.2)
+    if platform.system() != 'Darwin':
+        download.close()
+        time.sleep(0.2)
+        download.set_port_baudrate(2000000)
+        download.open()
+        time.sleep(0.2)
 
     # check baudrate
     while True:
@@ -118,15 +125,18 @@ def main(argv):
             print('serial into high speed mode')
             break
         else:
-            download.close()
-            download.set_port_baudrate(115200)
-            download.open()
-            time.sleep(0.2)
-            download.putc(bytes.fromhex('210a00ef2a3100000080841e00'))
-            download.close()
-            download.set_port_baudrate(2000000)
-            download.open()
-            time.sleep(0.2)
+            if platform.system != 'Darwin':
+                download.close()
+                download.set_port_baudrate(115200)
+                download.open()
+                time.sleep(0.2)
+                download.putc(bytes.fromhex('210a00ef2a3100000080841e00'))
+                download.close()
+                download.set_port_baudrate(2000000)
+                download.open()
+                time.sleep(0.2)
+            else:
+                pass
 
     print("start download %s "  % download.image_path())
     try:
