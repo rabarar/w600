@@ -19,10 +19,11 @@ class WMDownload(object):
 
     if platform.system() == 'Windows':
         DEFAULT_PORT = "COM1"
-    else if platform.system() == 'Darwin':
+    elif platform.system() == 'Darwin':
         DEFAULT_PORT = "/dev/tty.usb{find me}"
-    else
+    else:
         DEFAULT_PORT = "/dev/ttyUSB0"
+
     DEFAULT_BAUD = 115200
     DEFAULT_TIMEOUT = 0.3
     DEFAULT_IMAGE = "../Bin/WM_W600_GZ.img"
@@ -119,13 +120,14 @@ def main(argv):
         time.sleep(0.2)
 
     # check baudrate
+    print('device restarted !')
     while True:
         c = download.getc(1)
         if c == b'C':
             print('serial into high speed mode')
             break
         else:
-            if platform.system != 'Darwin':
+            if platform.system() != 'Darwin':
                 download.close()
                 download.set_port_baudrate(115200)
                 download.open()
@@ -136,7 +138,7 @@ def main(argv):
                 download.open()
                 time.sleep(0.2)
             else:
-                pass
+                print(".")
 
     print("start download %s "  % download.image_path())
     try:
